@@ -66,6 +66,7 @@ npm -v
 ```bash
 cd api
 bin/rails db:prepare
+bin/rails db:seed
 bin/rails server
 ```
 
