@@ -3,4 +3,8 @@ class Category < ApplicationRecord
   has_one :budget, dependent: :destroy
 
   validates :name, presence: true, uniqueness: true
+
+  def spent_in(month_range)
+    transactions.where(date: month_range).sum(:amount)
+  end
 end

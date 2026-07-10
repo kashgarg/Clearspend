@@ -3,5 +3,7 @@ Rails.application.routes.draw do
 
   namespace :api do
     resources :transactions, only: [:index, :create]
+    resources :categories, only: [:index]
+    resources :accounts, only: [:index]
   end
 end
