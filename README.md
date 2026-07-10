@@ -60,3 +60,13 @@ nvm use 20
 node -v   # => v20.x
 npm -v
 ```
+
+## Running the API
+
+```bash
+cd api
+bin/rails db:prepare
+bin/rails server
+```
+
+The API listens on [http://localhost:3000](http://localhost:3000).
