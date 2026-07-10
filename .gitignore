@@ -1,0 +1,48 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors / IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# Ruby / Rails (api/)
+api/.bundle/
+api/vendor/bundle/
+api/log/*
+api/tmp/*
+!api/log/.keep
+!api/tmp/.keep
+api/storage/*
+!api/storage/.keep
+api/public/assets
+api/config/master.key
+api/*.key
+
+# Node / frontend
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.local
+frontend/.vite/
+
+# Coverage / test artifacts
+coverage/
+.nyc_output/
+
+# Misc
+*.pid
+*.seed
+*.pid.lock
