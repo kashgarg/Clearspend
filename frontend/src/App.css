@@ -1,9 +1,6 @@
 .app {
   min-height: 100vh;
-  display: grid;
-  place-content: center;
-  gap: 0.6rem;
-  text-align: center;
+  padding: 2.5rem 1.5rem 3rem;
   font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
   background:
     radial-gradient(ellipse 80% 60% at 50% -10%, #d9ebe3 0%, transparent 55%),
@@ -11,15 +8,71 @@
   color: #15201c;
 }
 
-.app h1 {
+.app-header {
+  max-width: 44rem;
+  margin: 0 auto 2rem;
+  text-align: center;
+}
+
+.app-header h1 {
   margin: 0;
-  font-size: 2.75rem;
+  font-size: 2.5rem;
   font-weight: 600;
   letter-spacing: -0.03em;
 }
 
-.app p {
-  margin: 0;
-  font-size: 1rem;
+.app-header p {
+  margin: 0.5rem 0 0;
   color: #4a5a54;
+}
+
+.status {
+  text-align: center;
+  color: #4a5a54;
+}
+
+.status.error {
+  color: #8a3b2d;
+}
+
+.panels {
+  display: grid;
+  gap: 1.75rem;
+  max-width: 44rem;
+  margin: 0 auto;
+}
+
+.panels h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #4a5a54;
+}
+
+.panels ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid #d5ddd8;
+}
+
+.panels li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #d5ddd8;
+}
+
+.panels li span:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.panels small {
+  color: #6b7a73;
+  font-size: 0.85rem;
 }
