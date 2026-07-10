@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { fetchCategories, fetchTransactions } from './api'
 import { BudgetProgressList } from './components/BudgetProgressList'
 import { RecentTransactions } from './components/RecentTransactions'
+import { SpendByCategoryChart } from './components/SpendByCategoryChart'
 import { currentMonth } from './lib/format'
 import type { Category, Transaction } from './types'
 import './App.css'
@@ -61,6 +62,7 @@ function App() {
       {!loading && !error && (
         <div className="dashboard">
           <BudgetProgressList categories={categories} />
+          <SpendByCategoryChart categories={categories} />
           <RecentTransactions transactions={transactions} />
         </div>
       )}
