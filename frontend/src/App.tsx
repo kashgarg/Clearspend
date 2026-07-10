@@ -1,16 +1,26 @@
 import { useEffect, useState } from 'react'
-import { fetchCategories, fetchTransactions } from './api'
+import {
+  createTransaction,
+  fetchAccounts,
+  fetchCategories,
+  fetchTransactions,
+} from './api'
 import { BudgetProgressList } from './components/BudgetProgressList'
 import { RecentTransactions } from './components/RecentTransactions'
 import { SpendByCategoryChart } from './components/SpendByCategoryChart'
+import { TransactionForm } from './components/TransactionForm'
 import { currentMonth } from './lib/format'
-import type { Category, Transaction } from './types'
+import type { Account, Category, CreateTransactionInput, Transaction } from './types'
 import './App.css'
 
 function App() {
   const [categories, setCategories] = useState<Category[]>([])
   const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [accounts, setAccounts] = useState<Account[]>([])
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
+  const [filtering, setFiltering] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const month = currentMonth()
 
@@ -21,13 +31,15 @@ function App() {
       try {
         setLoading(true)
         setError(null)
-        const [nextCategories, nextTransactions] = await Promise.all([
+        const [nextCategories, nextTransactions, nextAccounts] = await Promise.all([
           fetchCategories(month),
           fetchTransactions({ month }),
+          fetchAccounts(),
         ])
         if (!cancelled) {
           setCategories(nextCategories)
           setTransactions(nextTransactions)
+          setAccounts(nextAccounts)
         }
       } catch (err) {
         if (!cancelled) {
@@ -43,6 +55,111 @@ function App() {
       cancelled = true
     }
   }, [month])
+
+  useEffect(() => {
+    if (loading) return
+
+    let cancelled = false
+
+    async function loadFilteredTransactions() {
+      try {
+        setFiltering(true)
+        const nextTransactions = await fetchTransactions({
+          month,
+          categoryId: selectedCategoryId ?? undefined,
+        })
+        if (!cancelled) setTransactions(nextTransactions)
+      } catch (err) {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : 'Failed to filter transactions')
+        }
+      } finally {
+        if (!cancelled) setFiltering(false)
+      }
+    }
+
+    void loadFilteredTransactions()
+    return () => {
+      cancelled = true
+    }
+  }, [selectedCategoryId, month, loading])
+
+  async function handleCreateTransaction(input: CreateTransactionInput) {
+    const account = accounts.find((item) => item.id === input.account_id)
+    const category = categories.find((item) => item.id === input.category_id)
+    if (!account || !category) {
+      throw new Error('Pick a valid account and category.')
+    }
+
+    const tempId = -Date.now()
+    const optimistic: Transaction = {
+      id: tempId,
+      amount: input.amount,
+      merchant: input.merchant,
+      date: input.date,
+      account_id: input.account_id,
+      category_id: input.category_id,
+      account: {
+        id: account.id,
+        name: account.name,
+        account_type: account.account_type,
+      },
+      category: {
+        id: category.id,
+        name: category.name,
+      },
+    }
+
+    const previousTransactions = transactions
+    const previousCategories = categories
+
+    const matchesFilter =
+      selectedCategoryId == null || selectedCategoryId === input.category_id
+    const inCurrentMonth = input.date.startsWith(month)
+
+    if (matchesFilter) {
+      setTransactions((current) => [optimistic, ...current])
+    }
+
+    if (inCurrentMonth) {
+      setCategories((current) =>
+        current.map((item) => {
+          if (item.id !== input.category_id) return item
+          const spent = Number((item.spent + input.amount).toFixed(2))
+          const monthlyLimit = item.budget?.monthly_limit
+          return {
+            ...item,
+            spent,
+            budget: item.budget
+              ? {
+                  ...item.budget,
+                  remaining:
+                    monthlyLimit != null
+                      ? Number((monthlyLimit - spent).toFixed(2))
+                      : null,
+                }
+              : null,
+          }
+        }),
+      )
+    }
+
+    setSubmitting(true)
+    try {
+      const created = await createTransaction(input)
+      if (matchesFilter) {
+        setTransactions((current) =>
+          current.map((item) => (item.id === tempId ? created : item)),
+        )
+      }
+    } catch (err) {
+      setTransactions(previousTransactions)
+      setCategories(previousCategories)
+      throw err
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   return (
     <main className="app">
@@ -61,9 +178,22 @@ function App() {
 
       {!loading && !error && (
         <div className="dashboard">
+          <TransactionForm
+            accounts={accounts}
+            categories={categories}
+            submitting={submitting}
+            onSubmit={handleCreateTransaction}
+          />
           <BudgetProgressList categories={categories} />
           <SpendByCategoryChart categories={categories} />
-          <RecentTransactions transactions={transactions} />
+          <div className={filtering ? 'is-filtering' : undefined}>
+            <RecentTransactions
+              transactions={transactions}
+              categories={categories}
+              selectedCategoryId={selectedCategoryId}
+              onCategoryFilterChange={setSelectedCategoryId}
+            />
+          </div>
         </div>
       )}
     </main>

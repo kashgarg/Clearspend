@@ -1,6 +1,14 @@
 # Clearspend
 
-A full-stack budgeting app: Ruby on Rails API + React/TypeScript frontend. Log transactions, track spend vs. budget by category, and see it on a clean dashboard.
+A full-stack budgeting app with a Ruby on Rails API and a React/TypeScript dashboard. Log transactions, see spend vs. budget by category, and keep an eye on where the month is going.
+
+## Features
+
+- Five Active Record models on PostgreSQL: users, accounts, categories, budgets, transactions
+- REST JSON API for accounts, categories (with live spend totals), and transactions
+- Dashboard with budget progress bars and a Recharts spend-by-category chart
+- Transaction form with optimistic UI updates
+- Category filter on the recent transactions list
 
 ## Stack
 
@@ -65,6 +73,7 @@ npm -v
 
 ```bash
 cd api
+bundle install
 bin/rails db:prepare
 bin/rails db:seed
 bin/rails server
@@ -72,7 +81,16 @@ bin/rails server
 
 The API listens on [http://localhost:3000](http://localhost:3000).
 
+Useful endpoints:
+
+- `GET /api/accounts`
+- `GET /api/categories?month=YYYY-MM`
+- `GET /api/transactions?month=YYYY-MM&category_id=`
+- `POST /api/transactions`
+
 ## Running the frontend
+
+In a second terminal:
 
 ```bash
 cd frontend

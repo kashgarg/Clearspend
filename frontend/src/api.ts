@@ -13,8 +13,14 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   })
 
   if (!response.ok) {
-    const body = await response.text()
-    throw new Error(body || `Request failed with ${response.status}`)
+    let message = `Request failed with ${response.status}`
+    try {
+      const payload = (await response.json()) as { errors?: string[] }
+      if (payload.errors?.length) message = payload.errors.join(', ')
+    } catch {
+      // keep default message
+    }
+    throw new Error(message)
   }
 
   return response.json() as Promise<T>

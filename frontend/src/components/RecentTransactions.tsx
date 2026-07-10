@@ -1,22 +1,47 @@
-import type { Transaction } from '../types'
+import type { Category, Transaction } from '../types'
 import { formatDate, formatMoney } from '../lib/format'
+import { CategoryFilter } from './CategoryFilter'
 
 type RecentTransactionsProps = {
   transactions: Transaction[]
+  categories: Category[]
+  selectedCategoryId: number | null
+  onCategoryFilterChange: (categoryId: number | null) => void
 }
 
-export function RecentTransactions({ transactions }: RecentTransactionsProps) {
+export function RecentTransactions({
+  transactions,
+  categories,
+  selectedCategoryId,
+  onCategoryFilterChange,
+}: RecentTransactionsProps) {
   const recent = transactions.slice(0, 12)
+  const selectedName = categories.find((category) => category.id === selectedCategoryId)?.name
 
   return (
     <section className="transactions-section">
-      <div className="section-heading">
-        <h2>Recent</h2>
-        <p>Latest activity across your accounts</p>
+      <div className="section-heading section-heading--row">
+        <div>
+          <h2>Recent</h2>
+          <p>
+            {selectedName
+              ? `Showing ${selectedName} this month`
+              : 'Latest activity across your accounts'}
+          </p>
+        </div>
+        <CategoryFilter
+          categories={categories}
+          selectedCategoryId={selectedCategoryId}
+          onChange={onCategoryFilterChange}
+        />
       </div>
 
       {recent.length === 0 ? (
-        <p className="empty">No transactions this month yet.</p>
+        <p className="empty">
+          {selectedName
+            ? `No ${selectedName} transactions this month.`
+            : 'No transactions this month yet.'}
+        </p>
       ) : (
         <ul className="transaction-list">
           {recent.map((transaction, index) => (
