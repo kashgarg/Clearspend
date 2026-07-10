@@ -71,3 +71,14 @@ bin/rails server
 ```
 
 The API listens on [http://localhost:3000](http://localhost:3000).
+
+## Running the frontend
+
+```bash
+cd frontend
+nvm use 20
+npm install
+npm run dev
+```
+
+The app listens on [http://localhost:5173](http://localhost:5173).
