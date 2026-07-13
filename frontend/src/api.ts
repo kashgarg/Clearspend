@@ -73,3 +73,15 @@ export function updateOverallBudget(monthlyLimit: number): Promise<{
     body: JSON.stringify({ overall_budget: { monthly_limit: monthlyLimit } }),
   })
 }
+
+export function updateCategoryBudget(
+  categoryId: number,
+  monthlyLimit: number,
+  month?: string,
+): Promise<Category> {
+  const query = month ? `?month=${encodeURIComponent(month)}` : ''
+  return request<Category>(`/categories/${categoryId}/budget${query}`, {
+    method: 'PUT',
+    body: JSON.stringify({ budget: { monthly_limit: monthlyLimit } }),
+  })
+}

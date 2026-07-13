@@ -5,9 +5,11 @@ import {
   fetchBudgetSummary,
   fetchCategories,
   fetchTransactions,
+  updateCategoryBudget,
   updateOverallBudget,
 } from './api'
 import { BudgetProgressList } from './components/BudgetProgressList'
+import { CategoryBudgetPlanner } from './components/CategoryBudgetPlanner'
 import { OverallBudgetGoal } from './components/OverallBudgetGoal'
 import { RecentTransactions } from './components/RecentTransactions'
 import { SpendByCategoryChart } from './components/SpendByCategoryChart'
@@ -32,6 +34,7 @@ function App() {
   const [filtering, setFiltering] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [savingOverall, setSavingOverall] = useState(false)
+  const [savingCategoryId, setSavingCategoryId] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
   const month = currentMonth()
 
@@ -117,6 +120,18 @@ function App() {
       })
     } finally {
       setSavingOverall(false)
+    }
+  }
+
+  async function handleSaveCategoryBudget(categoryId: number, monthlyLimit: number) {
+    setSavingCategoryId(categoryId)
+    try {
+      const updated = await updateCategoryBudget(categoryId, monthlyLimit, month)
+      setCategories((current) =>
+        current.map((category) => (category.id === categoryId ? updated : category)),
+      )
+    } finally {
+      setSavingCategoryId(null)
     }
   }
 
@@ -232,6 +247,11 @@ function App() {
             summary={budgetSummary}
             saving={savingOverall}
             onSave={handleSaveOverallGoal}
+          />
+          <CategoryBudgetPlanner
+            categories={categories}
+            savingCategoryId={savingCategoryId}
+            onSave={handleSaveCategoryBudget}
           />
           <TransactionForm
             accounts={accounts}
