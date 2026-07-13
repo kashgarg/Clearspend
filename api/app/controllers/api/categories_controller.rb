@@ -1,5 +1,7 @@
 module Api
   class CategoriesController < ApplicationController
+    include Concerns::MonthRange
+
     def index
       month_range = resolve_month_range
       categories = Category.includes(:budget).order(:name)
@@ -8,17 +10,6 @@ module Api
     end
 
     private
-
-    def resolve_month_range
-      if params[:month].present?
-        year, month = params[:month].to_s.split("-").map(&:to_i)
-        Date.new(year, month, 1).all_month
-      else
-        Date.current.all_month
-      end
-    rescue ArgumentError, TypeError
-      Date.current.all_month
-    end
 
     def category_json(category, month_range)
       spent = category.spent_in(month_range).to_f
