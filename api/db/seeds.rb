@@ -7,6 +7,9 @@ end
 
 demo_user.update!(name: "Wintr Skyes") if demo_user.name != "Wintr Skyes"
 
+overall = demo_user.overall_budget || demo_user.build_overall_budget
+overall.update!(monthly_limit: 3_500)
+
 checking = Account.find_or_create_by!(user: demo_user, name: "Checking") do |account|
   account.account_type = "checking"
 end
@@ -95,4 +98,5 @@ sample_transactions.each do |account, category_name, amount, merchant, date|
 end
 
 puts "Seeded #{User.count} user, #{Account.count} accounts, #{Category.count} categories, " \
-     "#{Budget.count} budgets, #{Transaction.count} transactions."
+     "#{Budget.count} category budgets, #{OverallBudget.count} overall budget, " \
+     "#{Transaction.count} transactions."
