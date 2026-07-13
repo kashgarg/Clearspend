@@ -1,4 +1,10 @@
-import type { Account, Category, CreateTransactionInput, Transaction } from './types'
+import type {
+  Account,
+  BudgetSummary,
+  Category,
+  CreateTransactionInput,
+  Transaction,
+} from './types'
 
 const API_BASE_URL = 'http://localhost:3000/api'
 
@@ -50,5 +56,20 @@ export function createTransaction(input: CreateTransactionInput): Promise<Transa
   return request<Transaction>('/transactions', {
     method: 'POST',
     body: JSON.stringify({ transaction: input }),
+  })
+}
+
+export function fetchBudgetSummary(month?: string): Promise<BudgetSummary> {
+  const query = month ? `?month=${encodeURIComponent(month)}` : ''
+  return request<BudgetSummary>(`/budget_summary${query}`)
+}
+
+export function updateOverallBudget(monthlyLimit: number): Promise<{
+  id: number
+  monthly_limit: number
+}> {
+  return request('/overall_budget', {
+    method: 'PUT',
+    body: JSON.stringify({ overall_budget: { monthly_limit: monthlyLimit } }),
   })
 }

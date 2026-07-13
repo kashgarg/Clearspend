@@ -73,11 +73,6 @@
   color: var(--muted);
 }
 
-.section-heading p {
-  margin: 0.35rem 0 1.15rem;
-  color: var(--muted);
-}
-
 .section-heading--row {
   display: flex;
   flex-wrap: wrap;
@@ -93,6 +88,79 @@
 
 .form-section {
   animation: rise 480ms ease both;
+}
+
+.overall-budget-section {
+  animation: rise 480ms ease both;
+}
+
+.overall-budget-progress {
+  margin-bottom: 1.15rem;
+}
+
+.overall-remaining {
+  margin: 0.55rem 0 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.overall-budget-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  align-items: end;
+}
+
+.overall-budget-form label {
+  display: grid;
+  gap: 0.35rem;
+  flex: 1 1 12rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.overall-budget-form input {
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 0.45rem;
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--ink);
+  font: inherit;
+}
+
+.overall-budget-form input:focus {
+  outline: 2px solid rgba(31, 107, 82, 0.35);
+  outline-offset: 1px;
+  border-color: var(--accent);
+}
+
+.overall-budget-form button {
+  padding: 0.75rem 1.25rem;
+  border: 0;
+  border-radius: 0.45rem;
+  background: var(--accent);
+  color: #f4faf7;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 160ms ease, background-color 160ms ease;
+}
+
+.overall-budget-form button:hover:not(:disabled) {
+  background: #185541;
+  transform: translateY(-1px);
+}
+
+.overall-budget-form button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.overall-budget-form .form-error {
+  flex-basis: 100%;
+  margin: 0;
 }
 
 .transaction-form {

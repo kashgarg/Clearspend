@@ -2,25 +2,36 @@ import { useEffect, useState } from 'react'
 import {
   createTransaction,
   fetchAccounts,
+  fetchBudgetSummary,
   fetchCategories,
   fetchTransactions,
+  updateOverallBudget,
 } from './api'
 import { BudgetProgressList } from './components/BudgetProgressList'
+import { OverallBudgetGoal } from './components/OverallBudgetGoal'
 import { RecentTransactions } from './components/RecentTransactions'
 import { SpendByCategoryChart } from './components/SpendByCategoryChart'
 import { TransactionForm } from './components/TransactionForm'
 import { currentMonth } from './lib/format'
-import type { Account, Category, CreateTransactionInput, Transaction } from './types'
+import type {
+  Account,
+  BudgetSummary,
+  Category,
+  CreateTransactionInput,
+  Transaction,
+} from './types'
 import './App.css'
 
 function App() {
   const [categories, setCategories] = useState<Category[]>([])
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [accounts, setAccounts] = useState<Account[]>([])
+  const [budgetSummary, setBudgetSummary] = useState<BudgetSummary | null>(null)
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
   const [filtering, setFiltering] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [savingOverall, setSavingOverall] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const month = currentMonth()
 
@@ -31,15 +42,18 @@ function App() {
       try {
         setLoading(true)
         setError(null)
-        const [nextCategories, nextTransactions, nextAccounts] = await Promise.all([
-          fetchCategories(month),
-          fetchTransactions({ month }),
-          fetchAccounts(),
-        ])
+        const [nextCategories, nextTransactions, nextAccounts, nextSummary] =
+          await Promise.all([
+            fetchCategories(month),
+            fetchTransactions({ month }),
+            fetchAccounts(),
+            fetchBudgetSummary(month),
+          ])
         if (!cancelled) {
           setCategories(nextCategories)
           setTransactions(nextTransactions)
           setAccounts(nextAccounts)
+          setBudgetSummary(nextSummary)
         }
       } catch (err) {
         if (!cancelled) {
@@ -84,6 +98,28 @@ function App() {
     }
   }, [selectedCategoryId, month, loading])
 
+  async function handleSaveOverallGoal(monthlyLimit: number) {
+    setSavingOverall(true)
+    try {
+      const updated = await updateOverallBudget(monthlyLimit)
+      setBudgetSummary((current) => {
+        const spent = current?.spent ?? 0
+        return {
+          month,
+          spent,
+          monthly_limit: updated.monthly_limit,
+          remaining: Number((updated.monthly_limit - spent).toFixed(2)),
+          overall_budget: {
+            id: updated.id,
+            monthly_limit: updated.monthly_limit,
+          },
+        }
+      })
+    } finally {
+      setSavingOverall(false)
+    }
+  }
+
   async function handleCreateTransaction(input: CreateTransactionInput) {
     const account = accounts.find((item) => item.id === input.account_id)
     const category = categories.find((item) => item.id === input.category_id)
@@ -112,6 +148,7 @@ function App() {
 
     const previousTransactions = transactions
     const previousCategories = categories
+    const previousSummary = budgetSummary
 
     const matchesFilter =
       selectedCategoryId == null || selectedCategoryId === input.category_id
@@ -142,6 +179,18 @@ function App() {
           }
         }),
       )
+
+      setBudgetSummary((current) => {
+        if (!current) return current
+        const spent = Number((current.spent + input.amount).toFixed(2))
+        const monthlyLimit = current.monthly_limit
+        return {
+          ...current,
+          spent,
+          remaining:
+            monthlyLimit != null ? Number((monthlyLimit - spent).toFixed(2)) : null,
+        }
+      })
     }
 
     setSubmitting(true)
@@ -155,6 +204,7 @@ function App() {
     } catch (err) {
       setTransactions(previousTransactions)
       setCategories(previousCategories)
+      setBudgetSummary(previousSummary)
       throw err
     } finally {
       setSubmitting(false)
@@ -178,6 +228,11 @@ function App() {
 
       {!loading && !error && (
         <div className="dashboard">
+          <OverallBudgetGoal
+            summary={budgetSummary}
+            saving={savingOverall}
+            onSave={handleSaveOverallGoal}
+          />
           <TransactionForm
             accounts={accounts}
             categories={categories}

@@ -43,3 +43,14 @@ export type CreateTransactionInput = {
   merchant: string
   date: string
 }
+
+export type BudgetSummary = {
+  month: string
+  spent: number
+  monthly_limit: number | null
+  remaining: number | null
+  overall_budget: {
+    id: number
+    monthly_limit: number
+  } | null
+}
