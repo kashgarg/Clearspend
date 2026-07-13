@@ -4,8 +4,9 @@ A full-stack budgeting app with a Ruby on Rails API and a React/TypeScript dashb
 
 ## Features
 
-- Five Active Record models on PostgreSQL: users, accounts, categories, budgets, transactions
-- REST JSON API for accounts, categories (with live spend totals), and transactions
+- Active Record models on PostgreSQL: users, accounts, categories, budgets, overall budgets, transactions
+- REST JSON API for accounts, categories (with live spend totals), transactions, and budget planning
+- Set an overall monthly spending goal and editable per-category budget limits
 - Dashboard with budget progress bars and a Recharts spend-by-category chart
 - Transaction form with optimistic UI updates
 - Category filter on the recent transactions list
@@ -87,6 +88,9 @@ Useful endpoints:
 - `GET /api/categories?month=YYYY-MM`
 - `GET /api/transactions?month=YYYY-MM&category_id=`
 - `POST /api/transactions`
+- `GET /api/budget_summary?month=YYYY-MM`
+- `PUT /api/overall_budget`
+- `PUT /api/categories/:id/budget`
 
 ## Running the frontend
 
